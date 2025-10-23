@@ -23,7 +23,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-neutral-100 h-full min-h-screen relative overflow-x-hidden`}
       >
         {/* Background & logo */}
-        <BackgroundLines className="pointer-events-none fixed inset-0 z-0" svgOptions={{ duration: 8 }} />
+        <BackgroundLines className="pointer-events-none fixed inset-0 z-0" svgOptions={{ duration: 8 }}>
+          {null}
+        </BackgroundLines>
         <RotatingLogo />
 
         {/* Cursor sparkles */}
