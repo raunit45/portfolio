@@ -119,10 +119,7 @@ a {
 }
 
 /* --- cursor styles controlled by <html> classes --- */
-html.cur-pointer { cursor: pointer; }
-html.cur-crosshair { cursor: crosshair; }
-html.cur-grab { cursor: grab; cursor: -webkit-grab; }
-html.cur-zoom { cursor: zoom-in; }
+
 
 /* optional: ensure buttons etc. don't override */
 * { cursor: inherit; }

@@ -11,11 +11,18 @@ function LinkPreview({ url, title }: { url: string; title?: string }) {
   )}&screenshot=true&meta=false&embed=screenshot.url&overlay.browser=light`;
 
   return (
-    <div className="relative w-80 rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950/85 backdrop-blur-xl shadow-2xl">
+    <div className="relative w-80 rounded-xl overflow-hidden border border-neutral-800 bg-transparent shadow-2xl">
+      {/* 👇 background made transparent */}
       <div className="relative h-44 w-full">
-        <Image src={src} alt={title || url} fill sizes="320px" className="object-cover" />
+        <Image
+          src={src}
+          alt={title || url}
+          fill
+          sizes="320px"
+          className="object-cover opacity-95"
+        />
       </div>
-      <div className="p-3">
+      <div className="p-3 bg-neutral-900/40 backdrop-blur-0">
         <div className="text-sm font-medium text-neutral-100 truncate">
           {title || url.replace(/^https?:\/\//, "")}
         </div>
@@ -37,7 +44,10 @@ function LinkPreview({ url, title }: { url: string; title?: string }) {
 
 /** 🌐 Projects */
 const KLEATS = { url: "https://kleats.in", title: "Kleats — Campus Pre-Ordering" };
-const NEWSNOW = { url: "https://github.com/raunit45/newsnow", title: "NewsNow — Next.js + TS + CI/CD" };
+const NEWSNOW = {
+  url: "https://github.com/raunit45/newsnow",
+  title: "NewsNow — Next.js + TS + CI/CD",
+};
 const GROCER = {
   url: "https://github.com/amalsalilan/GrocerGenius_AI_Based_Supermarket_Sales_Prediction_Infosys_Internship_Oct2024/tree/Raunit",
   title: "GrocerGenius — Python + ML (Infosys)",
@@ -78,7 +88,10 @@ const MotionDiv = motion.div;
 /** 🧱 Main Component */
 export default function SkillsTools() {
   return (
-    <section id="skills" className="relative py-20 bg-neutral-950 text-white">
+    <section
+      id="skills"
+      className="relative py-20 text-white bg-transparent"
+    >
       <div className="max-w-6xl mx-auto px-6 text-center">
         {/* Header */}
         <h2 className="text-3xl md:text-5xl font-extrabold mb-12 tracking-tight">
@@ -118,7 +131,7 @@ export default function SkillsTools() {
                 className="flex flex-col items-center gap-2 cursor-pointer"
               >
                 <div
-                  className={`relative flex items-center justify-center rounded-2xl p-5 bg-neutral-900 border border-neutral-800 group-hover:border-indigo-500/50 shadow-lg transition-all`}
+                  className={`relative flex items-center justify-center rounded-2xl p-5 bg-neutral-900/40 border border-neutral-800 group-hover:border-indigo-500/50 shadow-lg transition-all`}
                 >
                   <div className={`w-8 h-8 ${skill.color} text-2xl`}>{skill.icon}</div>
                   <motion.div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/0 to-sky-500/0 opacity-0 group-hover:opacity-20 transition-all" />
@@ -163,7 +176,7 @@ export default function SkillsTools() {
                 className="flex flex-col items-center gap-2 cursor-pointer"
               >
                 <div
-                  className={`relative flex items-center justify-center rounded-2xl p-5 bg-neutral-900 border border-neutral-800 group-hover:border-pink-500/50 shadow-lg transition-all`}
+                  className={`relative flex items-center justify-center rounded-2xl p-5 bg-neutral-900/40 border border-neutral-800 group-hover:border-pink-500/50 shadow-lg transition-all`}
                 >
                   <div className={`w-8 h-8 ${tool.color} text-2xl`}>{tool.icon}</div>
                   <motion.div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-500/0 to-purple-500/0 opacity-0 group-hover:opacity-20 transition-all" />

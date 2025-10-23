@@ -33,10 +33,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Link
           href="/funarea"
           className="fixed top-4 right-6 z-40 px-5 py-2 rounded-lg
-                     bg-gradient-to-r from-indigo-500 to-sky-500
-                     text-white font-semibold shadow-lg
-                     hover:scale-105 hover:shadow-indigo-500/40
-                     transition-all duration-300 ease-out"
+               bg-gradient-to-r from-indigo-500 to-sky-500
+               text-[#000000] dark:text-[#000000] font-semibold shadow-lg
+               hover:scale-105 hover:shadow-indigo-500/40
+               transition-all duration-300 ease-out"
         >
           🎮 Play Game
         </Link>
