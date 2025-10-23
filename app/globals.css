@@ -1,26 +1,172 @@
+/* === Import Tailwind core === */
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* === Global Theme Setup (Tailwind v4 style) === */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ripple opacity pulse */
+  --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out none 1 var(--delay, 0ms);
+
+  @keyframes cell-ripple {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+
+  /* dark background palette */
+  --color-bg: #0a0a0a;
+  --color-fg: #fafafa;
+  --color-accent: #3b82f6; /* Tailwind blue-500 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* === Global Reset / Dark Mode Enforcement === */
+html {
+  color-scheme: dark;
+  background-color: var(--color-bg);
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply text-[var(--color-fg)] bg-[var(--color-bg)] antialiased relative;
 }
+
+/* === Text & link defaults === */
+a {
+  @apply text-[var(--color-accent)] hover:underline;
+}
+
+/* === Optional Utility Layer === */
+@layer utilities {
+  .animate-cell-ripple {
+    animation: var(--animate-cell-ripple);
+  }
+
+  /* fade-in for sections */
+  .fade-in {
+    animation: fadeIn 1s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* === Scrollbar Styling (dark aesthetic) === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+@keyframes hueRotate {
+  from {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+.animate-hue-rotate {
+  animation: hueRotate 6s linear infinite;
+}
+@keyframes ripplePulse {
+  0%   { transform: scale(0.9); opacity: 0.0; filter: blur(2px); }
+  25%  { transform: scale(1.05); opacity: 0.7; filter: blur(0.5px); }
+  60%  { transform: scale(1.12); opacity: 0.35; filter: blur(1px); }
+  100% { transform: scale(1.18); opacity: 0.0; filter: blur(2px); }
+}
+
+@layer utilities {
+  .animate-ripple-pulse {
+    animation: ripplePulse 0.9s ease-out forwards;
+    will-change: transform, opacity, filter;
+  }
+}
+/* traveling wave animation per cell */
+@keyframes cell-ripple {
+  0%   { transform: scale(0.96); opacity: 0.10; filter: blur(0.6px); }
+  35%  { transform: scale(1.02); opacity: 0.55; filter: blur(0.2px); }
+  70%  { transform: scale(1.06); opacity: 0.22; filter: blur(0.6px); }
+  100% { transform: scale(1.08); opacity: 0.08; filter: blur(0.8px); }
+}
+
+@layer utilities {
+  .animate-cell-ripple {
+    animation: cell-ripple var(--duration, 600ms) ease-out 1 var(--delay, 0ms);
+    will-change: transform, opacity, filter;
+  }
+}
+/* --- smooth image fade --- */
+@keyframes fadein {
+  to { opacity: 1; }
+}
+
+/* --- cursor styles controlled by <html> classes --- */
+html.cur-pointer { cursor: pointer; }
+html.cur-crosshair { cursor: crosshair; }
+html.cur-grab { cursor: grab; cursor: -webkit-grab; }
+html.cur-zoom { cursor: zoom-in; }
+
+/* optional: ensure buttons etc. don't override */
+* { cursor: inherit; }
+button, a { cursor: inherit; }  /* we want the global cursor to be seen */
+
+/* === Cursor Sparkles === */
+.sparkles { mix-blend-mode: screen; }
+
+.sparkle {
+  position: absolute;
+  left: 0; top: 0;
+  width: calc(var(--size, 4) * 1px);
+  height: calc(var(--size, 4) * 1px);
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, hsl(var(--hue) 90% 70%), transparent 66%);
+  box-shadow:
+    0 0 8px hsla(var(--hue) 90% 70% / .85),
+    0 0 20px hsla(var(--hue) 90% 70% / .35);
+  transform: translate3d(calc(var(--x, 0) * 1px), calc(var(--y, 0) * 1px), 0) rotate(0deg);
+  will-change: transform, opacity, filter;
+  filter: brightness(1.1);
+}
+
+@keyframes sparkle-pop {
+  0% {
+    transform:
+      translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 0)
+      rotate(0deg)
+      scale(0.6);
+    opacity: 0.95;
+    filter: blur(0px);
+  }
+  70% { opacity: 0.9; }
+  100% {
+    transform:
+      translate3d(
+        calc(var(--x) * 1px + var(--tx) * 1px),
+        calc(var(--y) * 1px + var(--ty) * 1px),
+        0
+      )
+      rotate(calc(var(--rot) * 1deg))
+      scale(0);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
