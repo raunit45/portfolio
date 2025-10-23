@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 type Tab = "about" | "study" | "hobbies" | "favourites" | "life";
 
-const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
+const tabs: { key: Tab; label: string; icon: React.ComponentType<any> }[] = [
   { key: "about", label: "About Me", icon: IconUser },
   { key: "study", label: "Where do I study?", icon: IconSchool },
   { key: "hobbies", label: "Hobbies", icon: IconHeart },
