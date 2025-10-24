@@ -83,11 +83,7 @@ export default function Home() {
       </section>
 
       {/* ================= FLOATING DOCK ================= */}
-      <FloatingDock
-        items={links}
-        desktopClassName="fixed bottom-10 left-1/2 -translate-x-1/2 z-50"
-        mobileClassName="fixed bottom-5 right-5 z-50"
-      />
+      
     </>
   );
 }
