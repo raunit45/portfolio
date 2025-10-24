@@ -1,5 +1,5 @@
 /**
- * FloatingDock with "View Resume" option
+ * FloatingDock with "View Resume" option + separate "Download Resume"
  */
 "use client";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import {
   IconBrandLinkedin,
   IconBrandX,
   IconFileText,
+  IconDownload,
 } from "@tabler/icons-react";
 import {
   AnimatePresence,
@@ -36,14 +37,16 @@ type DockItem = {
    MAIN COMPONENT EXPORT
 =========================== */
 export const FloatingDock = ({
+  items: propItems,
   desktopClassName,
   mobileClassName,
 }: {
+  items?: DockItem[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
-  // Define your dock items here
-  const items: DockItem[] = [
+  // Default dock items (can be overridden by prop `items`)
+  const defaultItems: DockItem[] = [
     {
       title: "Homepage",
       icon: <IconHome className="h-5 w-5" />,
@@ -71,10 +74,18 @@ export const FloatingDock = ({
       title: "View Resume",
       icon: <IconFileText className="h-5 w-5" />,
       href: "/Resume.pdf",
-      target: "_blank", // opens in new tab
-      // download: "Raunit_Raj_Resume.pdf" // use this instead if you want auto-download
+      target: "_blank", // opens in new tab (no download attr here)
+    },
+    {
+      title: "Download Resume",
+      icon: <IconDownload className="h-5 w-5" />,
+      href: "/Resume.pdf",
+      // allow direct download where supported
+      download: "Resume.pdf",
     },
   ];
+
+  const items: DockItem[] = propItems ?? defaultItems;
 
   return (
     <>
@@ -194,10 +205,11 @@ function IconContainer({
   let widthIconTransform = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
   let heightIconTransform = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
 
-  let width = useSpring(widthTransform, { mass: 0.1, stiffness: 150, damping: 12 });
-  let height = useSpring(heightTransform, { mass: 0.1, stiffness: 150, damping: 12 });
-  let widthIcon = useSpring(widthIconTransform, { mass: 0.1, stiffness: 150, damping: 12 });
-  let heightIcon = useSpring(heightIconTransform, { mass: 0.1, stiffness: 150, damping: 12 });
+  // use gentler spring values for smoother, less bouncy motion
+  let width = useSpring(widthTransform, { mass: 0.2, stiffness: 110, damping: 18 });
+  let height = useSpring(heightTransform, { mass: 0.2, stiffness: 110, damping: 18 });
+  let widthIcon = useSpring(widthIconTransform, { mass: 0.2, stiffness: 110, damping: 18 });
+  let heightIcon = useSpring(heightIconTransform, { mass: 0.2, stiffness: 110, damping: 18 });
 
   const [hovered, setHovered] = useState(false);
 

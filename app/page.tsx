@@ -61,6 +61,18 @@ export default function Home() {
           subtitle="I build immersive interfaces that feel alive — blending data, motion, and precision engineering to turn ideas into experiences."
           width={220}
         />
+
+        {/* Download resume button (place the PDF in /public/Raunit_Raj_Resume.pdf) */}
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-12 z-40">
+          <a
+            href="/Raunit_Raj_Resume.pdf"
+            download
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow-lg transition"
+            aria-label="Download resume"
+          >
+            Download Resume
+          </a>
+        </div>
       </section>
 
       {/* ================= ABOUT ================= */}
@@ -83,7 +95,11 @@ export default function Home() {
       </section>
 
       {/* ================= FLOATING DOCK ================= */}
-      
+      <FloatingDock
+        items={links}
+        desktopClassName="fixed bottom-10 left-1/2 -translate-x-1/2 z-50"
+        mobileClassName="fixed bottom-5 right-5 z-50"
+      />
     </>
   );
 }

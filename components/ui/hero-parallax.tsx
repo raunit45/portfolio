@@ -2,246 +2,154 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
-  AnimatePresence,
-  MotionConfig,
   motion,
+  useMotionValue,
+  useSpring,
   useReducedMotion,
+  type Transition,
 } from "framer-motion";
-import { createPortal } from "react-dom";
 
-/* -------------------- Data -------------------- */
-
-type Project = { title: string; link: string; thumbnail: string };
-
-const PROJECTS: Project[] = [
-  { title: "Kleats — Campus Pre-Ordering", link: "https://kleats.in", thumbnail: "/gallery/kleats.png" },
-  { title: "NewsNow — Next.js + TS + CI/CD", link: "https://github.com/raunit45/newsnow", thumbnail: "/gallery/newsnow.png" },
-  { title: "GrocerGenius — Python + ML (Infosys)", link: "https://github.com/amalsalilan/GrocerGenius_AI_Based_Supermarket_Sales_Prediction_Infosys_Internship_Oct2024/tree/Raunit", thumbnail: "/gallery/supermarket.png" },
-  { title: "AmazonClone — Full-stack build", link: "https://github.com/raunit45/AmazonClone", thumbnail: "/gallery/amazonclone.png" },
+/* ---------- DATA ---------- */
+const COLLAGE = [
+  "/gallery/kleats.png",
+  "/gallery/newsnow.png",
+  "/gallery/supermarket.png",
+  "/gallery/amazonclone.png",
+  "/gallery/newsnow.png",
+  "/gallery/supermarket.png",
+  "/gallery/amazonclone.png",
 ];
 
-/* -------------------- Helpers -------------------- */
+/* ---------- POSITIONS (percent) ---------- */
+const LAYOUT = [
+  { x: 10, y: 14, w: 26, r: 2 },
+  { x: 32, y: 0,  w: 24, r: -3 },
+  { x: 58, y: 6,  w: 28, r: 4 },
+  { x: 70, y: 26, w: 30, r: -2 },
+  { x: 18, y: 36, w: 34, r: -1 },
+  { x: 46, y: 38, w: 26, r: 3 },
+  { x: 4,  y: 58, w: 28, r: -4 },
+];
 
-function Portal({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
-  return mounted ? createPortal(children, document.body) : null;
-}
-
-/** Hover intent with rAF + small delays to prevent jitter */
-function useHoverIntent(delayIn = 70, delayOut = 120) {
-  const openT = React.useRef<number | null>(null);
-  const closeT = React.useRef<number | null>(null);
-  const raf = React.useRef<number | null>(null);
-
-  const clearAll = () => {
-    if (openT.current) window.clearTimeout(openT.current);
-    if (closeT.current) window.clearTimeout(closeT.current);
-    if (raf.current) cancelAnimationFrame(raf.current);
-    openT.current = closeT.current = raf.current = null;
-  };
-
-  const scheduleOpen = (fn: () => void) => {
-    clearAll();
-    raf.current = requestAnimationFrame(() => {
-      openT.current = window.setTimeout(fn, delayIn);
-    });
-  };
-  const scheduleClose = (fn: () => void) => {
-    clearAll();
-    closeT.current = window.setTimeout(fn, delayOut);
-  };
-
-  React.useEffect(() => clearAll, []);
-  return { scheduleOpen, scheduleClose, clearAll };
-}
-
-/* -------------------- Card (memoized) -------------------- */
-
-type CardProps = {
-  i: number;
-  p: Project;
-  onOpen: (i: number) => void;
-  onMaybeClose: () => void;
-};
-
-const GridCard = React.memo(function GridCard({
-  i,
-  p,
-  onOpen,
-  onMaybeClose,
-}: CardProps) {
-  return (
-    <motion.article
-      layoutId={`card-${i}`}
-      onMouseEnter={() => onOpen(i)}
-      onFocus={() => onOpen(i)}
-      onMouseLeave={onMaybeClose}
-      onBlur={onMaybeClose}
-      className="group relative cursor-pointer rounded-2xl border border-neutral-800/80 bg-neutral-900/30 overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.25)] transform-gpu will-change-transform"
-      whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 180, damping: 22, mass: 0.7 }}
-    >
-      {/* Only card container + media share layout to reduce work */}
-      <motion.div layoutId={`media-${i}`} className="relative w-full aspect-[16/10]">
-        <Image
-          src={p.thumbnail}
-          alt={p.title}
-          fill
-          sizes="(max-width:768px) 100vw, 560px"
-          className="object-cover will-change-transform"
-          priority={false}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_62%,rgba(0,0,0,0.22))]" />
-      </motion.div>
-
-      {/* Footer fades (no layout linking = cheaper) */}
-      <motion.div
-        className="flex items-center justify-between gap-3 px-4 py-4 bg-neutral-950/50"
-        initial={false}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
-      >
-        <h3 className="text-sm md:text-base font-semibold text-neutral-100 line-clamp-2">
-          {p.title}
-        </h3>
-        <span className="text-xs md:text-sm text-neutral-300">View ↗</span>
-      </motion.div>
-    </motion.article>
-  );
+/* ---------- FLOAT ---------- */
+const floatKeyframes = (i: number) => ({
+  y: [0, i % 2 ? -6 : -10, 0, i % 2 ? 6 : 10, 0],
+  transition: { duration: 7 + (i % 5), repeat: Infinity, ease: "easeInOut" as const },
 });
 
-/* -------------------- Main Component -------------------- */
+const HOVER_SPRING: Transition = { type: "spring", stiffness: 5000000000, damping: 250000, mass: 50 };
 
-export default function FeaturedProjects({
-  products = PROJECTS,
-}: {
-  products?: Project[];
-}) {
+export default function HeroCollageMarvin() {
   const prefersReduced = useReducedMotion();
-  const [active, setActive] = React.useState<number | null>(null);
-  const [popupHover, setPopupHover] = React.useState(false);
-  const { scheduleOpen, scheduleClose, clearAll } = useHoverIntent(70, 120);
 
-  const open = (i: number) => scheduleOpen(() => setActive(i));
-  const maybeClose = () =>
-    scheduleClose(() => {
-      if (!popupHover) setActive(null);
-    });
-  const closeNow = () => {
-    clearAll();
-    setActive(null);
-  };
+  // cursor -> spring
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const sx = useSpring(mx, { stiffness: 10000, damping: 2500, mass: 2 });
+  const sy = useSpring(my, { stiffness: 10000, damping: 2500, mass: 2 });
 
-  // Lock scroll while popup is open (reduces jank)
+  // sequential mount (0.3s)
+  const [visibleCount, setVisibleCount] = React.useState(0);
   React.useEffect(() => {
-    if (active !== null) {
-      const { overflow } = document.body.style;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = overflow;
-      };
-    }
-  }, [active]);
+    if (visibleCount >= LAYOUT.length) return;
+    const t = setTimeout(() => setVisibleCount((v) => v + 1), 300);
+    return () => clearTimeout(t);
+  }, [visibleCount]);
+
+  const onMove = (e: React.MouseEvent) => {
+    const r = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    mx.set(x);
+    my.set(y);
+  };
+  const onLeave = () => { mx.set(0); my.set(0); };
 
   return (
-    <MotionConfig
-      transition={
-        prefersReduced
-          ? { duration: 0.2 }
-          : { type: "spring", stiffness: 180, damping: 22, mass: 0.7 }
+    <div
+      className="relative w-full min-h-[70vh] md:min-h-[90vh] overflow-visible"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      /* expose MotionValues as CSS vars (safe; not a hook in the loop) */
+      style={
+        {
+          "--mx": sx,
+          "--my": sy,
+        } as React.CSSProperties
       }
     >
-      <section className="relative w-full py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <div className="text-center mb-10 md:mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-              <span className="text-neutral-300">Featured</span>{" "}
-              <span className="text-white">Projects</span>
-            </h2>
-          </div>
+      {/* Glow backdrop */}
+      <div className="pointer-events-none absolute -inset-10 rounded-[40px] bg-[radial-gradient(70%_60%_at_50%_40%,rgba(120,119,198,.18),transparent_60%)]" />
 
-          <div className="mx-auto max-w-[1200px] grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {products.map((p, i) => (
-              <GridCard
-                key={p.title}
-                i={i}
-                p={p}
-                onOpen={open}
-                onMaybeClose={maybeClose}
-              />
-            ))}
-          </div>
+      {/* COLLAGE */}
+      <div className="absolute inset-0">
+        {COLLAGE.slice(0, visibleCount).map((src, i) => {
+          const conf = LAYOUT[i % LAYOUT.length];
+          const depth = 6 + (i % 6); // 6..11
+          const dx = depth * 10;     // pixels per unit mx/my
 
-          {/* Popup via portal for zero clipping; cheap overlay, no blur */}
-          <AnimatePresence>
-            {active !== null && (
-              <Portal>
-                {/* Overlay */}
-                <motion.button
-                  key="overlay"
-                  onClick={closeNow}
-                  className="fixed inset-0 z-40 hidden md:block"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.45 }}
-                  exit={{ opacity: 0 }}
-                  style={{ background: "#000" }}
-                  transition={{ duration: 0.18 }}
-                  aria-label="Close preview"
+          const initial = prefersReduced
+            ? { opacity: 1, y: 0, scale: 1, rotate: conf.r }
+            : { opacity: 0, y: 40, scale: 0.92, rotate: conf.r - 4 };
+
+          const animate = prefersReduced
+            ? { opacity: 1, y: 0, scale: 1, rotate: conf.r }
+            : {
+                opacity: 1, y: 0, scale: 1, rotate: conf.r,
+                transition: { duration: 0.8, type: "spring" as const, stiffness: 100, damping: 18 },
+              };
+
+          return (
+            <motion.div
+              key={i}
+              className="absolute will-change-transform"
+              style={{
+                left: `${conf.x}%`,
+                top: `${conf.y}%`,
+                width: `${conf.w}%`,
+                rotate: conf.r,
+                zIndex: 10 + i,
+                // Parallax via CSS vars; no hooks here:
+                transform: `translate3d(calc(var(--mx) * ${dx}px), calc(var(--my) * ${dx}px), 0)`,
+              }}
+              {...floatKeyframes(i)}
+              initial={initial}
+              animate={animate}
+              whileHover={{ scale: 1.04, rotate: conf.r * 0.8 }}
+              transition={HOVER_SPRING}
+            >
+              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden ring-1 ring-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.45)]">
+                <Image
+                  src={src}
+                  alt={`collage-${i}`}
+                  fill
+                  sizes="(max-width:768px) 100vw, 40vw"
+                  className="object-cover select-none"
+                  priority={i < 3}
                 />
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
 
-                {/* Popup */}
-                <motion.div
-                  key="popup"
-                  layoutId={`card-${active}`}
-                  className="fixed z-50 hidden md:block left-1/2 top-1/2 w-[min(88vw,980px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-neutral-800/80 bg-neutral-900/95 shadow-2xl transform-gpu will-change-transform"
-                  onMouseEnter={() => {
-                    clearAll();
-                    setPopupHover(true);
-                  }}
-                  onMouseLeave={() => {
-                    setPopupHover(false);
-                    closeNow();
-                  }}
-                  initial={prefersReduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 6 }}
-                  animate={prefersReduced ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
-                  exit={prefersReduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 6 }}
-                >
-                  <Link href={products[active].link} target="_blank" className="block">
-                    <motion.div layoutId={`media-${active}`} className="relative w-full aspect-[16/10]">
-                      <Image
-                        src={products[active].thumbnail}
-                        alt={products[active].title}
-                        fill
-                        sizes="980px"
-                        className="object-cover will-change-transform"
-                        priority
-                      />
-                    </motion.div>
-
-                    {/* Footer fades in, not layout-linked (cheaper) */}
-                    <motion.div
-                      className="flex items-center justify-between gap-3 px-5 py-4 bg-neutral-950/70"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.18 }}
-                    >
-                      <h3 className="text-base font-semibold text-neutral-100">
-                        {products[active].title}
-                      </h3>
-                      <span className="text-sm text-neutral-300">Open ↗</span>
-                    </motion.div>
-                  </Link>
-                </motion.div>
-              </Portal>
-            )}
-          </AnimatePresence>
+      {/* TEXT */}
+      <div className="relative z-[60] flex items-center justify-center text-center h-full px-6">
+        <div className="max-w-5xl">
+          <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] tracking-tight">
+            <span className="text-white/90">Intelligent by </span>
+            <span className="text-white">Design</span>
+            <span className="text-white/90">, engineered for interaction.</span>
+          </h1>
+          <p className="mt-4 text-base md:text-lg text-white/70">
+            I build immersive interfaces that feel alive — blending data, motion, and precision engineering.
+          </p>
+          <p className="mt-3 text-xs tracking-widest text-white/50 uppercase">
+            Images render one by one every 0.3s
+          </p>
         </div>
-      </section>
-    </MotionConfig>
+      </div>
+    </div>
   );
 }

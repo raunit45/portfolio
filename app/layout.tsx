@@ -6,6 +6,7 @@ import RotatingLogo from "@/components/ui/RotatingLogo";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { CursorSparkles } from "@/components/ui/cursor-sparkles";
 import SplashGate from "@/components/ui/SplashGate"; // ⬅️ add this
+import MotionProvider from "@/components/ui/MotionProvider";
 import Link from "next/link";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -45,7 +46,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         {/* Page content gated by splash */}
         <main className="relative z-10 min-h-screen">
-          <SplashGate>{children}</SplashGate>
+          <MotionProvider>
+            <SplashGate>{children}</SplashGate>
+          </MotionProvider>
         </main>
       </body>
     </html>

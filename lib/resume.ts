@@ -88,5 +88,5 @@ export const GAME = {
   catchRadius: 50,       // collision radius
 };
 
-// NOTE: PDF lives at /public/resume.pdf so the unlock dialog can show it.
-export const RESUME_PDF_PATH = "/resume.pdf";
+// NOTE: PDF lives at /public/Resume.pdf (case-sensitive on some hosts) so the unlock dialog can show it.
+export const RESUME_PDF_PATH = "/Resume.pdf";
